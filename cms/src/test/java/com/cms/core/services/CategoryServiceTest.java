@@ -1,10 +1,12 @@
 package com.cms.core.services;
 
+import java.util.List;
+
 import org.junit.Assert;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
@@ -24,6 +26,7 @@ import com.cms.core.models.Category;
 public class CategoryServiceTest {
 	@Autowired
 	private CategoryService categoryService;
+	private Integer id;
 
 	@Test
 	@Order(1)
@@ -40,9 +43,23 @@ public class CategoryServiceTest {
 
 	@Test
 	@Order(2)
+	public void testFindAll() {
+		SpringDataWebProperties.Pageable pageable = new SpringDataWebProperties.Pageable();
+		List<Category> categories = categoryService.findAll(pageable);
+		id = categories.get(categories.size() - 1).getCategoryId();
+
+		boolean category = categories.isEmpty();
+
+		Assert.assertFalse(category);
+	}
+
+	@Test
+	@Order(3)
 	public void testUpdate() {
+		id = getLastCategoryId();
+
 		Category category = new Category();
-		category.setCategoryId(45);
+		category.setCategoryId(id);
 		category.setName("Test2");
 		category.setDescription("Esto es un test de update 2");
 		category.setCategorySuperiorId(2);
@@ -53,18 +70,11 @@ public class CategoryServiceTest {
 	}
 
 	@Test
-	@Order(3)
-	public void testFindAll() {
-		SpringDataWebProperties.Pageable pageable = new SpringDataWebProperties.Pageable();
-		boolean category = categoryService.findAll(pageable).isEmpty();
-
-		Assert.assertFalse(category);
-	}
-
-	@Test
 	@Order(4)
 	public void testFindById() {
-		Category category = categoryService.findById(45);
+		id = getLastCategoryId();
+
+		Category category = categoryService.findById(id);
 
 		Assert.assertTrue(category != null);
 		Assert.assertTrue("Test2".equals(category.getName()));
@@ -73,9 +83,11 @@ public class CategoryServiceTest {
 	@Test
 	@Order(5)
 	public void testDeleteById() {
-		categoryService.deleteById(47);
-		Category category = categoryService.findById(51);
-		Assert.assertFalse(category != null);
+		id = getLastCategoryId();
+
+		categoryService.deleteById(id);
+
+		Assert.assertFalse(categoryService.deleteById(id));
 	}
 
 	@Test
@@ -85,5 +97,12 @@ public class CategoryServiceTest {
 		categoryService.deleteAll();
 
 		Assert.assertTrue(categoryService.findAll(pageable).isEmpty());
+	}
+
+	public Integer getLastCategoryId() {
+		SpringDataWebProperties.Pageable pageable = new SpringDataWebProperties.Pageable();
+		List<Category> categories = categoryService.findAll(pageable);
+		id = categories.get(categories.size() - 1).getCategoryId();
+		return id;
 	}
 }

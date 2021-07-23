@@ -2,6 +2,9 @@ package com.cms.core.services;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,48 +14,58 @@ import com.cms.core.models.Permission;
 
 @Service
 public class PermissionService implements CrudService<Permission, Integer> {
-	private JdbcTemplate jdbcTemplate;
+	private Log log = LogFactory.getLog(getClass());
 
-	public PermissionService(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
-	}
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	@Override
 	public boolean save(Permission permission) {
-		String SQL = String.format("INSERT INTO `permission`(`Permission_id`,`Name`) VALUES('%d','%s')",
-				permission.getPermissionId(), permission.getName());
-		return this.jdbcTemplate.update(SQL) > 0;
+		String SQL = String.format("INSERT INTO `permission`(`Permission_id`,`Name`) VALUES(?,?)");
+
+		log.info(SQL);
+		return this.jdbcTemplate.update(SQL, permission.getPermissionId(), permission.getName()) > 0;
 	}
 
 	@Override
 	public boolean update(Permission permission) {
-		final String SQL = String.format("UPDATE `permission` SET Name='%s' " + "WHERE Permission_id = '%d'",
-				permission.getName(), permission.getPermissionId());
-		return jdbcTemplate.update(SQL) > 0;
+		final String SQL = String.format("UPDATE `permission` SET Name= ? " + "WHERE Permission_id = ?");
+
+		log.info(SQL);
+		return jdbcTemplate.update(SQL, permission.getName(), permission.getPermissionId()) > 0;
 	}
 
 	@Override
 	public boolean deleteById(Integer key) {
-		final String SQL = String.format("DELETE FROM `permission`" + "WHERE Permission_id = '%d'", key);
-		return jdbcTemplate.update(SQL) > 0;
+		final String SQL = String.format("DELETE FROM `permission` WHERE Permission_id = ?");
+
+		log.info(SQL);
+		return jdbcTemplate.update(SQL, key) > 0;
 	}
 
 	@Override
 	public boolean deleteAll() {
-		this.jdbcTemplate.execute("DELETE FROM `permission`");
+		final String SQL = String.format("DELETE FROM `permission`");
+		this.jdbcTemplate.execute(SQL);
+
+		log.info(SQL);
 		return true;
 	}
 
 	@Override
 	public List<Permission> findAll(Pageable pageable) {
 		final String SQL = "SELECT * FROM `permission`";
+
+		log.info(SQL);
 		return this.jdbcTemplate.query(SQL, new BeanPropertyRowMapper<>(Permission.class));
 	}
 
 	@Override
 	public Permission findById(Integer key) {
-		final String SQL = String.format("SELECT * FROM `permission` WHERE Permission_id = '%d'", key);
-		return this.jdbcTemplate.queryForObject(SQL, new BeanPropertyRowMapper<>(Permission.class));
+		final String SQL = String.format("SELECT * FROM `permission` WHERE Permission_id = ?");
+
+		log.info(SQL);
+		return this.jdbcTemplate.queryForObject(SQL, new BeanPropertyRowMapper<>(Permission.class), key);
 	}
 
 }

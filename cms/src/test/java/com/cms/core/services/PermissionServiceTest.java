@@ -1,5 +1,7 @@
 package com.cms.core.services;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -24,6 +26,7 @@ import com.cms.core.models.Permission;
 public class PermissionServiceTest {
 	@Autowired
 	private PermissionService permissionService;
+	private Integer id;
 
 	@Test
 	@Order(1)
@@ -38,18 +41,6 @@ public class PermissionServiceTest {
 
 	@Test
 	@Order(2)
-	public void testUpdate() {
-		Permission permission = new Permission();
-		permission.setPermissionId(1);
-		permission.setName("TestPermission2");
-
-		boolean result = permissionService.update(permission);
-
-		Assert.assertTrue(result);
-	}
-
-	@Test
-	@Order(3)
 	public void testFindAll() {
 		SpringDataWebProperties.Pageable pageable = new SpringDataWebProperties.Pageable();
 		boolean permission = permissionService.findAll(pageable).isEmpty();
@@ -58,9 +49,25 @@ public class PermissionServiceTest {
 	}
 
 	@Test
+	@Order(3)
+	public void testUpdate() {
+		id = getLastPermissionId();
+
+		Permission permission = new Permission();
+		permission.setPermissionId(id);
+		permission.setName("TestPermission2");
+
+		boolean result = permissionService.update(permission);
+
+		Assert.assertTrue(result);
+	}
+
+	@Test
 	@Order(4)
 	public void testFindById() {
-		Permission permission = permissionService.findById(1);
+		id = getLastPermissionId();
+
+		Permission permission = permissionService.findById(id);
 
 		Assert.assertTrue(permission != null);
 		Assert.assertTrue("TestPermission2".equals(permission.getName()));
@@ -69,9 +76,11 @@ public class PermissionServiceTest {
 	@Test
 	@Order(5)
 	public void testDeleteById() {
-		permissionService.deleteById(1);
-		Permission permission = permissionService.findById(1);
-		Assert.assertFalse(permission != null);
+		id = getLastPermissionId();
+
+		permissionService.deleteById(id);
+
+		Assert.assertFalse(permissionService.deleteById(id));
 	}
 
 	@Test
@@ -81,5 +90,12 @@ public class PermissionServiceTest {
 		permissionService.deleteAll();
 
 		Assert.assertTrue(permissionService.findAll(pageable).isEmpty());
+	}
+
+	public Integer getLastPermissionId() {
+		SpringDataWebProperties.Pageable pageable = new SpringDataWebProperties.Pageable();
+		List<Permission> permissions = permissionService.findAll(pageable);
+		id = permissions.get(permissions.size() - 1).getPermissionId();
+		return id;
 	}
 }

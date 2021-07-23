@@ -35,8 +35,8 @@ public class PermissionController {
 		return ResponseEntity.ok(new Base(permissionService.update(permission)));
 	}
 
-	@DeleteMapping
-	public ResponseEntity<Base> delete(@RequestBody int id) {
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Base> delete(@PathVariable Integer id) {
 		return ResponseEntity.ok(new Base(permissionService.deleteById(id)));
 	}
 

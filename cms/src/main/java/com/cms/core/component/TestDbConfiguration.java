@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.cms.core.services.CategoryService;
+import com.cms.core.services.PermissionService;
 import com.cms.core.services.UserService;
 
 @Configuration
@@ -30,5 +31,10 @@ public class TestDbConfiguration {
 	@Bean
 	public UserService userService() {
 		return new UserService();
+	}
+
+	@Bean
+	public PermissionService permissionSermice() {
+		return new PermissionService();
 	}
 }

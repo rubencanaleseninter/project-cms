@@ -3,17 +3,17 @@ package com.cms.core.models;
 import java.util.Date;
 
 public class Category {
-	private int categoryId;
+	private Integer categoryId;
 	private String name;
 	private String description;
 	private int categorySuperiorId;
 	private Date date;
 
-	public int getCategoryId() {
+	public Integer getCategoryId() {
 		return categoryId;
 	}
 
-	public void setCategoryId(int categoryId) {
+	public void setCategoryId(Integer categoryId) {
 		this.categoryId = categoryId;
 	}
 
